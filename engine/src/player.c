@@ -452,7 +452,7 @@ void P_Update(void)
 	
 		
 	vectorAdd(camera.position,camera.forward,vLookat);	
-	gluLookAt(camera.position, vLookat, camera.up, viewMatrix);
+	my_gluLookAt(camera.position, vLookat, camera.up, viewMatrix);
 	
 	// Building transpose of camera rotation
 	cameraInvRot[0] = viewMatrix[0]; 	cameraInvRot[4] = viewMatrix[1]; 	cameraInvRot[8] = viewMatrix[2];	cameraInvRot[12] = 0;

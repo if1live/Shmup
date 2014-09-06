@@ -254,7 +254,7 @@ void SCR_RenderFrame(void)
 }
 
 
-void gluPerspective(float fovy, float aspect, float zNear, float zFar,matrix_t projectionMatrix)
+void my_gluPerspective(float fovy, float aspect, float zNear, float zFar,matrix_t projectionMatrix)
 {
 	float f  = (float)(1 / tan(fovy*DEG_TO_RAD/2));	
 	
@@ -269,7 +269,7 @@ void gluPerspective(float fovy, float aspect, float zNear, float zFar,matrix_t p
 
 
 
-void gluLookAt(  vec3_t vEye,  vec3_t vLookat, vec3_t vUp ,matrix_t fModelView)
+void my_gluLookAt(  vec3_t vEye,  vec3_t vLookat, vec3_t vUp ,matrix_t fModelView)
 {
 	vec3_t vN,vU,vV;
 	

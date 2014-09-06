@@ -155,8 +155,8 @@ void SCR_Init(void);
 void SCR_BindMethods(int rendererType);
 void SCR_RenderFrame(void);
 void SCR_GetColorBuffer(uchar* data);
-void gluPerspective(float fovy,float aspect, float zNear, float zFar,matrix_t projectionMatrix);
-void gluLookAt(  vec3_t vEye,  vec3_t vLookat, vec3_t vUp,matrix_t fModelView );
+void my_gluPerspective(float fovy,float aspect, float zNear, float zFar,matrix_t projectionMatrix);
+void my_gluLookAt(  vec3_t vEye,  vec3_t vLookat, vec3_t vUp,matrix_t fModelView );
 
 //Fading
 void SCR_SetFadeScreenCoo(vec2short_t upperLeft, vec2short_t upperRight, vec2short_t lowerRight, vec2short_t lowerLeft);

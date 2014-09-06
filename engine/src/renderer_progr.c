@@ -27,7 +27,8 @@
 #include "renderer_progr.h"
 
 #include "target.h"
-#if defined (SHMUP_TARGET_WINDOWS) || defined (SHMUP_TARGET_MACOSX) || defined (SHMUP_TARGET_LINUX)
+//#if defined (SHMUP_TARGET_WINDOWS) || defined (SHMUP_TARGET_MACOSX) || defined (SHMUP_TARGET_LINUX)
+#if defined (SHMUP_TARGET_MACOSX) || defined (SHMUP_TARGET_LINUX)
 void initProgrRenderer(renderer_t* renderer){ Log_Printf("Shader renderer is not implemented.\n");exit(0);}
 #else
 
@@ -44,6 +45,8 @@ void initProgrRenderer(renderer_t* renderer){ Log_Printf("Shader renderer is not
 #if defined(ANDROID)
     #include <GLES2/gl2.h>
     #include <GLES2/gl2ext.h>	
+#elif defined(SHMUP_TARGET_WINDOWS)
+	#include <GL/glew.h>
 #else
     #include <OpenGLES/ES2/gl.h>
     #include <OpenGLES/ES2/glext.h>
@@ -195,7 +198,14 @@ void CreateFBOandShadowMap()
 		case 0x8CDB:										Log_Printf("GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT\n");break;
 		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:			Log_Printf("GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT\n");break;
 		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:	Log_Printf("GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT\n");break;
-		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:			Log_Printf("GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS\n");break;			
+#ifdef GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS
+		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
+#endif
+#ifdef GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT
+		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+#endif
+			Log_Printf("GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS\n");
+			break;			
 		case GL_FRAMEBUFFER_UNSUPPORTED:					Log_Printf("GL_FRAMEBUFFER_UNSUPPORTED\n");break;	
 		default:											Log_Printf("Unknown issue (%x).\n",status);break;	
 	}	
@@ -735,9 +745,9 @@ void SetupCamera(void)
 	
 	vectorAdd(camera.position,camera.forward,vLookat);
 	
-	gluLookAt(camera.position, vLookat, camera.up, modelViewMatrix);
+	my_gluLookAt(camera.position, vLookat, camera.up, modelViewMatrix);
 	
-	gluPerspective(camera.fov, camera.aspect,camera.zNear, camera.zFar, projectionMatrix);
+	my_gluPerspective(camera.fov, camera.aspect,camera.zNear, camera.zFar, projectionMatrix);
 	
 }
 
@@ -769,8 +779,8 @@ void RenderEntities(void)
 		glViewport(0, 0, renderer.glBuffersDimensions[WIDTH]*shadowMapRation, renderer.glBuffersDimensions[HEIGHT]*shadowMapRation);
 		
 		//Setup perspective and camera
-		gluPerspective(light.fov, camera.aspect,camera.zNear, camera.zFar, projectionMatrix);
-		gluLookAt(light.position, light.lookAt, light.upVector, modelViewMatrix);
+		my_gluPerspective(light.fov, camera.aspect,camera.zNear, camera.zFar, projectionMatrix);
+		my_gluLookAt(light.position, light.lookAt, light.upVector, modelViewMatrix);
 	
 		entity = map;
 		for(i=0; i < num_map_entities; i++,entity++)

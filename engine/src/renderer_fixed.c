@@ -35,7 +35,9 @@
 
 #include "target.h"
 #if defined(SHMUP_TARGET_WINDOWS)
-	#include "GLES/gl.h"
+	//#include "GLES/gl.h"
+	#include <GL/glew.h>
+	#define glOrthof glOrtho
 #elif defined(SHMUP_TARGET_MACOSX)
     #include "OpenGL/gl.h"
     #define glOrthof glOrtho
@@ -90,7 +92,7 @@ void SetupCameraF(void)
 	
 	vectorAdd(camera.position,camera.forward,vLookat);
 	
-	gluLookAt(camera.position, vLookat, camera.up, modelViewMatrix);
+	my_gluLookAt(camera.position, vLookat, camera.up, modelViewMatrix);
 	
 	//Log_Printf("t=%d, up=[%.2f,%.2f,%.2f]\n",simulationTime,camera.up[X],camera.up[Y],camera.up[Z]);
 	
@@ -596,7 +598,7 @@ void RenderEntitiesF(void)
 	
 	
 	glMatrixMode(GL_PROJECTION);
-	gluPerspective(camera.fov, camera.aspect,camera.zNear, camera.zFar, projectionMatrix);
+	my_gluPerspective(camera.fov, camera.aspect,camera.zNear, camera.zFar, projectionMatrix);
 	glLoadMatrixf(projectionMatrix);
 	
 	glMatrixMode(GL_MODELVIEW);

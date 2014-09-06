@@ -703,10 +703,10 @@ void PREPROC_PopulateRawFaceSet(prec_camera_frame_t* frame)
 	// Get mv matrix
 	vectorClear(vLookat);
 	vectorAdd(frame->position,forward,vLookat);
-	gluLookAt(frame->position, vLookat, up, prec_ViewMatrix);
+	my_gluLookAt(frame->position, vLookat, up, prec_ViewMatrix);
 	
 	// Get p matrix	using a wider fov this way polygons are marked visibles juuuust before they get on screen
-	gluPerspective(camera.fov+4,camera.aspect,camera.zNear,camera.zFar,prec_ProjectionMatrix);
+	my_gluPerspective(camera.fov+4,camera.aspect,camera.zNear,camera.zFar,prec_ProjectionMatrix);
 	
 	matrix_multiply(prec_ProjectionMatrix,prec_ViewMatrix,pv);
 	

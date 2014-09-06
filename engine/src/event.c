@@ -61,9 +61,9 @@ void EV_AttachToCamera(event_t* event)
 	vec3_t vLookat;
 	
 	
-	gluPerspective(camera.fov, camera.aspect,camera.zNear, camera.zFar, projectionMatrix);
+	my_gluPerspective(camera.fov, camera.aspect,camera.zNear, camera.zFar, projectionMatrix);
 	vectorAdd(camera.position,camera.forward,vLookat);	
-	gluLookAt(camera.position, vLookat, camera.up, viewMatrix);
+	my_gluLookAt(camera.position, vLookat, camera.up, viewMatrix);
 	matrix_multiply(projectionMatrix, viewMatrix, globalMatrix);
 	
 	Log_Printf("[EV_AttachToCamera]\n");

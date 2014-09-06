@@ -21,3 +21,15 @@ build
 .DS_Store
 *.o
 .*.swp
+
+## CMake
+engine/glfw/*.vcxproj
+engine/glfw/*.filters
+engine/glfw/*.sln
+engine/glfw/*.opensdf
+engine/glfw/openal
+engine/glfw/glfw
+engine/glfw/glew
+CMakeFiles
+CMakeCache.txt
+cmake_install.cmake

@@ -1,0 +1,61 @@
+CMAKE_MINIMUM_REQUIRED( VERSION 2.8 )
+PROJECT( "Shmup" )
+
+SET( EXT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../external )
+SET( SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
+
+INCLUDE( FindOpenGL )
+
+MACRO( APPEND_LINK_LIBS )
+	LIST( APPEND LINK_LIBS ${ARGN} )
+ENDMACRO( APPEND_LINK_LIBS )
+
+########################################################
+
+# Add glfw
+SET( GLFW_BUILD_EXAMPLES OFF )
+SET( GLFW_BUILD_TESTS OFF  )
+IF( APPLE )
+	SET(_GLFW_COCOA ON)
+	SET(_GLFW_NSGL ON)
+ENDIF(  )
+SET( GLFW_EXT_SRC_DIR ${EXT_DIR}/glfw CACHE PATH "glfw" )
+ADD_SUBDIRECTORY ( ${GLFW_EXT_SRC_DIR} "glfw" )
+INCLUDE_DIRECTORIES( ${GLFW_EXT_SRC_DIR}/include )
+APPEND_LINK_LIBS( glfw )
+
+# Add glew
+SET( GLEW_EXT_SRC_DIR ${EXT_DIR}/glew )
+ADD_SUBDIRECTORY ( ${GLEW_EXT_SRC_DIR} "glew" )
+INCLUDE_DIRECTORIES( ${GLEW_EXT_SRC_DIR}/include )
+APPEND_LINK_LIBS( libglew_shared )
+
+# Add OpenAL
+FIND_PACKAGE( openal )
+SET( OPENAL_ROOT ${EXT_DIR}/openal )
+
+IF( NOT OPENAL_FOUND )
+	ADD_SUBDIRECTORY( ${OPENAL_ROOT}/OpenAL-Soft "openal" )
+
+	SET( OPENAL_INCLUDE_DIR "${OPENAL_ROOT}/include" "${OPENAL_ROOT}/include/AL")
+ENDIF(  )
+INCLUDE_DIRECTORIES( ${OPENAL_INCLUDE_DIR} )
+
+APPEND_LINK_LIBS( ${OPENAL_LIBRARY} )
+
+########################################################
+
+
+IF( ${OPENGL_FOUND} )
+	APPEND_LINK_LIBS( ${OPENGL_gl_LIBRARY} )
+ELSE(  )
+	MESSAGE(SEND_ERROR "Cannot Find OpenGL")
+ENDIF(  )
+
+
+FILE( GLOB SRC_FILES "${SRC_DIR}/*.c" "${SRC_DIR}/*.h" 
+	"${SRC_DIR}/../src/*.c" "${SRC_DIR}/../src/*.h" )
+
+ADD_EXECUTABLE( shmup ${SRC_FILES} )
+TARGET_LINK_LIBRARIES( shmup ${LINK_LIBS} )
+
