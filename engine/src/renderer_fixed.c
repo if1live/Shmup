@@ -35,9 +35,9 @@
 
 #include "target.h"
 #if defined(SHMUP_TARGET_WINDOWS)
-	//#include "GLES/gl.h"
 	#include <GL/glew.h>
 	#define glOrthof glOrtho
+	#define glFogx glFogf
 #elif defined(SHMUP_TARGET_MACOSX)
     #include "OpenGL/gl.h"
     #define glOrthof glOrtho

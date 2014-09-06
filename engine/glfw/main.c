@@ -1,9 +1,16 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+#define GLFW_EXPOSE_NATIVE_WIN32
+#define GLFW_EXPOSE_NATIVE_WGL
+#include <GLFW/glfw3native.h>
+
 #include <stdlib.h>
 #include <windows.h>
 #include <string.h>
 #include <strsafe.h>
+
+#include "main.h"
 
 #include "../src/dEngine.h"
 #include "../src/commands.h"
@@ -11,14 +18,9 @@
 #include "../src/menu.h"
 #include "../src/io_interface.h"
 
-#define WIN32_WINDOWS_WIDTH (320)
-#define WIN32_WINDOWS_HEIGHT (480)
 
-//#define WIN32_WINDOWS_WIDTH (768)
-//#define WIN32_WINDOWS_HEIGHT (1024)
-
-int gameOn;
-
+int gameOn = 1;
+GLFWwindow* window = NULL;
 
 #define KEYDOWN(vk_code)  ((GetAsyncKeyState(vk_code) & 0x8000) ? 1 : 0)
 #define KEYUP(vk_code)  ((GetAsyncKeyState(vk_code) & 0x8000) ? 0 : 1)
@@ -27,6 +29,97 @@ int gameOn;
 #define MOUSE_R_BUTTON 1
 int buttonState[2];
 int lastPosition[2];
+void WIN_ReadInputs(){
+	io_event_s event;
+
+	int buttonIsPressed = KEYDOWN(VK_LBUTTON);
+	static int buttonWasPressed = 0;
+
+
+	//Get the mouse coordinates in screenspace.
+	CURSORINFO pci;
+	pci.cbSize = sizeof(pci);
+	BOOL success = GetCursorInfo(&pci);
+
+	if (!success){
+		//WIN_CheckError("GetCursorInfo");
+		return;
+	}
+
+	//Convert the screenspage to windowspace coordinates.
+	success = ScreenToClient(WIN_GetHWND(), &pci.ptScreenPos);
+	if (!success){
+		//WIN_CheckError("ScreenToClient");
+		return;
+	}
+
+
+	if (KEYDOWN(VK_ESCAPE) && engine.requiredSceneId != 0 && engine.sceneId != 0){
+		MENU_Set(MENU_HOME);
+		engine.requiredSceneId = 0;
+	}
+
+
+	if (buttonIsPressed)
+	{
+
+
+		if (!buttonWasPressed)
+		{
+			//This is a began event
+			event.type = IO_EVENT_BEGAN;
+			event.position[X] = pci.ptScreenPos.x;
+			event.position[Y] = pci.ptScreenPos.y;
+
+
+
+			//Log_Printf("Click: [%d,%d].\n",event.position[X],event.position[Y]);
+			IO_PushEvent(&event);
+
+		}
+		else
+		{
+			//This is maybe a moved event.
+			if (pci.ptScreenPos.x != lastPosition[X] ||
+				pci.ptScreenPos.y != lastPosition[Y]
+				)
+			{
+				event.type = IO_EVENT_MOVED;
+				event.position[X] = pci.ptScreenPos.x;
+				event.position[Y] = pci.ptScreenPos.y;
+				event.previousPosition[X] = lastPosition[X];
+				event.previousPosition[Y] = lastPosition[Y];
+				IO_PushEvent(&event);
+			}
+		}
+
+		lastPosition[X] = pci.ptScreenPos.x;
+		lastPosition[Y] = pci.ptScreenPos.y;
+		buttonWasPressed = 1;
+	}
+	else
+	{
+		if (buttonWasPressed)
+		{
+			//This is an end event
+			event.type = IO_EVENT_ENDED;
+			IO_PushEvent(&event);
+		}
+		buttonWasPressed = 0;
+	}
+
+
+
+
+
+	//Log_Printf("wc: %d,%d\n",pci.ptScreenPos.x,pci.ptScreenPos.y);
+}
+
+HWND WIN_GetHWND()
+{
+	HWND hwnd = glfwGetWin32Window(window);
+	return hwnd;
+}
 
 static void error_callback(int error, const char* description)
 {
@@ -39,9 +132,8 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
-int main(void)
+void Create_NativeWindow()
 {
-	GLFWwindow* window;
 	glfwSetErrorCallback(error_callback);
 	if (!glfwInit())
 	{
@@ -66,11 +158,30 @@ int main(void)
 	}
 	fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 
+}
+
+void Destroy_NativeWindow()
+{
+	glfwDestroyWindow(window);
+	glfwTerminate();
+}
+
+void GLSwapBuffers()
+{
+	glfwSwapBuffers(window);
+	glfwPollEvents();
+}
+
+
+int main(void)
+{
 	// game engine start
 	unsigned char engineParameters = 0;
 	char cwd[256];
 	WORD nBufferLength=256;
 	char lpBuffer[256];
+
+	Create_NativeWindow();
 
 	//Create a console so we can see outputs.
 	AllocConsole();
@@ -80,6 +191,8 @@ int main(void)
 	HWND  consoleHandle = GetConsoleWindow();
 	MoveWindow(consoleHandle, 1, 1, 680, 480, 1);
 	printf("[main.cpp] Console initialized.\n");
+
+
 
 	GetCurrentDirectoryA(nBufferLength, lpBuffer);
 	memset(cwd, 0, 256);
@@ -93,10 +206,8 @@ int main(void)
 	_putenv(cwd);
 
 	engineParameters |= GL_11_RENDERER;
-	//engineParameters |= GL_20_RENDERER;
 
 	renderer.statsEnabled = 0;
-	//renderer.materialQuality = MATERIAL_QUALITY_LOW;
 	renderer.materialQuality = MATERIAL_QUALITY_HIGH;
 
 
@@ -130,12 +241,9 @@ int main(void)
 		unsigned long startFrame = timeGetTime();
 
 
-		//TODO
-		//WIN_ReadInputs();
+		WIN_ReadInputs();
 		dEngine_HostFrame();
-
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+		GLSwapBuffers();
 
 		unsigned long endFrame = timeGetTime();
 
@@ -151,7 +259,6 @@ int main(void)
 		}
 	}
 
-	glfwDestroyWindow(window);
-	glfwTerminate();
-	exit(EXIT_SUCCESS);
+	Destroy_NativeWindow();
+	return 0;
 }
