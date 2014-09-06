@@ -47,6 +47,7 @@ int main(void)
 	{
 		exit(EXIT_FAILURE);
 	}
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	window = glfwCreateWindow(WIN32_WINDOWS_WIDTH, WIN32_WINDOWS_HEIGHT, "Shmup", NULL, NULL);
 	if (!window)
 	{
