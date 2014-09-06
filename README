@@ -13,3 +13,21 @@ It is written in ANSI C with wrapper for the specific platforms, rendition is do
 Enjoy,
 
 Fabien Sanglard 
+
+Windows + GLFW Build Guide
+==========================
+
+Test env : VS2013
+
+1. git submodule init
+2. git submodule update
+3. cd engine\glfw
+4. cmake CMakeLists.txt
+5. open Shmup.sln, start project is ```shmup```. Build.
+6. copy ```glewd.dll``` from ```engine\glfw\bin\Debug``` to ```engine\glfw\Debug```.
+7. project properties -> debugging -> working directory is ```$(ProjectDir)\..\..\..```.
+
+* control : Mouse
+* quit : ESC
+
+
